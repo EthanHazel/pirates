@@ -2,5 +2,5 @@ __all__ = ["shallow",
 "island",
 "whirlpool",
 "homeport",
-"PeacefulIsland"]
-
+"PeacefulIsland", # why is this capitalized? It really annoys me more than it should
+"temple"]

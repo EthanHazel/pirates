@@ -53,16 +53,12 @@ class World (context.Context):
         self.locs[self.startx+1][self.starty] = whirl
 
         # Test island: always start off next to a test island. Swap in your island to test yours.
-        testland = island.Island (self.startx, self.starty+1, self)
-        self.locs[self.startx][self.starty+1] = testland
+        temple = JungleTemple.EthanJungleTemple (self.startx, self.starty + 1, self)
+        self.locs[self.startx][self.starty + 1] = temple
 
         # Peaceful island directly to the right of the spawning location.
         peacefulIsland = PeacefulIsland.PeacefulIsland(self.startx + 1, self.starty, self)
         self.locs[self.startx + 1][self.starty] = peacefulIsland
-
-        # Temple location is located 3 spaces to the right of the spawning location.
-        temple = temple.EthanTemple(self.startx + 3, self.starty, self)
-        self.locs[self.startx + 3][self.starty] = temple
 
         self.events = []
         self.events.append (lucky.LuckyDay())

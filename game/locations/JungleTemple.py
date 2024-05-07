@@ -86,3 +86,58 @@ class JungleTemple(location.SubLocation):
             announce ("You return to your ship. WORK IN PROGRESS.")
             config.the_player.next_loc = config.the_player.ship
             config.the_player.visiting = False
+
+"""
+Here's the riddles
+
+What has keys but can't open locks?
+a) A piano
+b) A computer
+c) A book
+d) A map
+What has a head, a tail, is brown, and has no legs?
+a) A penny
+b) A snake
+c) A horse
+d) A banana
+The more you take, the more you leave behind. What am I?
+a) Footprints
+b) A secret
+c) Money
+d) Time
+What is always in front of you but can't be seen?
+a) Tomorrow
+b) The past
+c) Air
+d) Your nose
+What comes once in a minute, twice in a moment, but never in a thousand years?
+a) The letter "M"
+b) The letter "E"
+c) The letter "N"
+d) The letter "O"
+What can travel around the world while staying in a corner?
+a) A stamp
+b) A map
+c) An airplane
+d) A postcard
+What has a head, a tail, is brown, and has no legs, but can sometimes walk?
+a) A coin
+b) A snake
+c) A horse
+d) A river
+The more you take, the more you leave behind. What am I?
+a) Footsteps
+b) Breath
+c) Memories
+d) A trail
+What is full of holes but still holds water?
+a) A sponge
+b) A strainer
+c) A bottle
+d) A pipe
+What has a neck but no head?
+a) A bottle
+b) A snake
+c) A pencil
+d) A sweater
+"""

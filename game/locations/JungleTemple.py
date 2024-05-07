@@ -13,10 +13,10 @@ class EthanJungleTemple(location.Location):
         self.visitable = True
         self.starting_location = JungleEntrance(self)
         self.locations = {}
-        self.locations["north"] = JungleEdge(self)
-        self.locations["south"] = JungleEdge(self)
-        self.locations["east"] = JungleEdge(self)
-        self.locations["west"] = JungleEdge(self)
+        self.locations["north"] = NorthEdge(self)
+        self.locations["entrence"] = JungleEntrance(self)
+        self.locations["east"] = EastEdge(self)
+        self.locations["west"] = WestEdge(self)
 
         # Center temple
         self.locations["temple"] = JungleTemple(self)
@@ -29,22 +29,68 @@ class EthanJungleTemple(location.Location):
         config.the_player.location.enter()
         super().visit()
 
-
-# TODO: Convert this to eastEdge westEdge etc so you can find your way back to the temple.
-class JungleEdge(location.SubLocation):
+class NorthEdge(location.SubLocation):
     def __init__(self, m):
         super().__init__(m)
-        self.name = "jungleEdge"
-        self.verbs['test'] = self
+        self.name = "jungleNorthEdge"
+        self.verbs['north'] = self
+        self.verbs['south'] = self
+        self.verbs['east'] = self
+        self.verbs['west'] = self
 
     def enter(self):
         announce ("You're surrounded by tall vines. There's nothing of interest here.")
 
     def process_verb (self, verb, cmd_list, nouns):
-        if (verb == "test"):
-            announce ("You return to your ship. WORK IN PROGRESS.")
-            config.the_player.next_loc = config.the_player.ship
-            config.the_player.visiting = False
+        if (verb == "north" or verb == "east" or verb == "west"):
+            announce ("They find the edge of the island\nPerhaps they should go south?")
+        elif (verb == "south"):
+            config.the_player.go = True
+            config.the_player.next_loc = self.main_location.locations["entrence"]
+
+class EastEdge(location.SubLocation):
+    def __init__(self, m):
+        super().__init__(m)
+        self.name = "jungleEastEdge"
+        self.verbs['north'] = self
+        self.verbs['south'] = self
+        self.verbs['east'] = self
+        self.verbs['west'] = self
+
+    def enter(self):
+        announce ("You're surrounded by tall vines. There's nothing of interest here.")
+
+    def process_verb (self, verb, cmd_list, nouns):
+        if (verb == "east" or verb == "south"):
+            announce ("They find the edge of the island\nPerhaps they should go south or west?")
+        elif (verb == "south" or verb == "west"):
+            config.the_player.go = True
+            config.the_player.next_loc = self.main_location.locations["entrence"]
+        elif (verb == "north"):
+            config.the_player.go = True
+            config.the_player.next_loc = self.main_location.locations["north"]
+
+class WestEdge(location.SubLocation):
+    def __init__(self, m):
+        super().__init__(m)
+        self.name = "jungleWestEdge"
+        self.verbs['north'] = self
+        self.verbs['south'] = self
+        self.verbs['east'] = self
+        self.verbs['west'] = self
+
+    def enter(self):
+        announce ("You're surrounded by tall vines. There's nothing of interest here.")
+
+    def process_verb (self, verb, cmd_list, nouns):
+        if (verb == "west" or verb == "south"):
+            announce ("They find the edge of the island\nPerhaps they should go south or east?")
+        elif (verb == "south" or verb == "east"):
+            config.the_player.go = True
+            config.the_player.next_loc = self.main_location.locations["entrence"]
+        elif (verb == "north"):
+            config.the_player.go = True
+            config.the_player.next_loc = self.main_location.locations["north"]
 
 class JungleEntrance(location.SubLocation):
     def __init__(self, m):

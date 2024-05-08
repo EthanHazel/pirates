@@ -2,7 +2,7 @@ from game import location
 import game.config as config
 from game.display import announce
 from game.events import *
-
+import random
 
 class EthanJungleTemple(location.Location):
 
@@ -13,13 +13,12 @@ class EthanJungleTemple(location.Location):
         self.visitable = True
         self.starting_location = JungleEntrance(self)
         self.locations = {}
-        self.locations["north"] = NorthEdge(self)
         self.locations["entrence"] = JungleEntrance(self)
-        self.locations["east"] = EastEdge(self)
-        self.locations["west"] = WestEdge(self)
-
-        # Center temple
         self.locations["temple"] = JungleTemple(self)
+        self.locations["riddle_1"] = RiddleOne(self)
+        self.locations["riddle_2"] = RiddleTwo(self)
+        self.locations["riddle_3"] = RiddleThree(self)
+        self.locations["treasure"] = Treasure(self)
 
     def enter(self, ship):
         announce ("You have arrived at a dense, mysterious jungle island.")
@@ -29,89 +28,21 @@ class EthanJungleTemple(location.Location):
         config.the_player.location.enter()
         super().visit()
 
-class NorthEdge(location.SubLocation):
-    def __init__(self, m):
-        super().__init__(m)
-        self.name = "jungleNorthEdge"
-        self.verbs['north'] = self
-        self.verbs['south'] = self
-        self.verbs['east'] = self
-        self.verbs['west'] = self
-
-    def enter(self):
-        announce ("You're surrounded by tall vines. There's nothing of interest here.")
-
-    def process_verb (self, verb, cmd_list, nouns):
-        if (verb == "north" or verb == "east" or verb == "west"):
-            announce ("They find the edge of the island\nPerhaps they should go south?")
-        elif (verb == "south"):
-            config.the_player.go = True
-            config.the_player.next_loc = self.main_location.locations["entrence"]
-
-class EastEdge(location.SubLocation):
-    def __init__(self, m):
-        super().__init__(m)
-        self.name = "jungleEastEdge"
-        self.verbs['north'] = self
-        self.verbs['south'] = self
-        self.verbs['east'] = self
-        self.verbs['west'] = self
-
-    def enter(self):
-        announce ("You're surrounded by tall vines. There's nothing of interest here.")
-
-    def process_verb (self, verb, cmd_list, nouns):
-        if (verb == "east" or verb == "south"):
-            announce ("They find the edge of the island\nPerhaps they should go south or west?")
-        elif (verb == "south" or verb == "west"):
-            config.the_player.go = True
-            config.the_player.next_loc = self.main_location.locations["entrence"]
-        elif (verb == "north"):
-            config.the_player.go = True
-            config.the_player.next_loc = self.main_location.locations["north"]
-
-class WestEdge(location.SubLocation):
-    def __init__(self, m):
-        super().__init__(m)
-        self.name = "jungleWestEdge"
-        self.verbs['north'] = self
-        self.verbs['south'] = self
-        self.verbs['east'] = self
-        self.verbs['west'] = self
-
-    def enter(self):
-        announce ("You're surrounded by tall vines. There's nothing of interest here.")
-
-    def process_verb (self, verb, cmd_list, nouns):
-        if (verb == "west" or verb == "south"):
-            announce ("They find the edge of the island\nPerhaps they should go south or east?")
-        elif (verb == "south" or verb == "east"):
-            config.the_player.go = True
-            config.the_player.next_loc = self.main_location.locations["entrence"]
-        elif (verb == "north"):
-            config.the_player.go = True
-            config.the_player.next_loc = self.main_location.locations["north"]
-
 class JungleEntrance(location.SubLocation):
     def __init__(self, m):
         super().__init__(m)
         self.name = "jungleEntrance"
         self.verbs['enter'] = self
-        self.verbs['north'] = self
-        self.verbs['south'] = self
-        self.verbs['east'] = self
-        self.verbs['west'] = self
+        self.verbs['leave'] = self
 
     def enter(self):
-        announce ("You stand at the edge of a dense jungle. You can see a mysterious temple deeper inside.\nWill they enter the temple?")
+        announce ("You stand at the edge of a dense jungle. You can see a mysterious temple deeper inside.\nYou can enter it.")
     
     def process_verb (self, verb, cmd_list, nouns):
-        if (verb == "south"):
+        if (verb == "leave"):
             announce ("You return to your ship.")
             config.the_player.next_loc = config.the_player.ship
             config.the_player.visiting = False
-        elif (verb == "north" or verb == "east" or verb == "west"):
-            config.the_player.next_loc = self.main_location.locations[verb]
         if (verb == "enter"):
             config.the_player.go = True
             config.the_player.next_loc = self.main_location.locations["temple"]
@@ -121,69 +52,112 @@ class JungleTemple(location.SubLocation):
     def __init__(self, m):
         super().__init__(m)
         self.name = "jungleTemple"
+        self.verbs['south'] = self
         self.verbs['enter'] = self
 
     def enter(self):
-        announce ("You step into the ancient temple, feeling a sense of reverence and mystery.")
+        announce ("You step into the ancient temple, feeling a sense of reverence and mystery.\nYou see a series of rooms with riddles to solve.")
         # Add riddles to solve here, if you get them right, you go to the next room, if you get them wrong, you get attacked by a monster, if you defeat the monster, you go to the next room anyways. At the end, you get a special item, a golden claymore sword
     
     def process_verb (self, verb, cmd_list, nouns):
-        if (verb == "test"):
-            announce ("You return to your ship. WORK IN PROGRESS.")
+        if (verb == "south"):
+            announce ("You return to your ship.")
             config.the_player.next_loc = config.the_player.ship
             config.the_player.visiting = False
+        if (verb == "enter"):
+            config.the_player.go = True
+            config.the_player.next_loc = self.main_location.locations["riddle_1"]
 
-"""
-Here's the riddles
+class Riddle(location.SubLocation):
+    def __init__(self, m, name, question, answers, correct, next_loc):
+        super().__init__(m)
+        self.name = name
+        self.question = question
+        self.answers = answers
+        self.correct = correct
+        self.next_loc = next_loc
+        self.verbs['answer'] = self
+        self.verbs['north'] = self
 
-What has keys but can't open locks?
-a) A piano
-b) A computer
-c) A book
-d) A map
-What has a head, a tail, is brown, and has no legs?
-a) A penny
-b) A snake
-c) A horse
-d) A banana
-The more you take, the more you leave behind. What am I?
-a) Footprints
-b) A secret
-c) Money
-d) Time
-What is always in front of you but can't be seen?
-a) Tomorrow
-b) The past
-c) Air
-d) Your nose
-What comes once in a minute, twice in a moment, but never in a thousand years?
-a) The letter "M"
-b) The letter "E"
-c) The letter "N"
-d) The letter "O"
-What can travel around the world while staying in a corner?
-a) A stamp
-b) A map
-c) An airplane
-d) A postcard
-What has a head, a tail, is brown, and has no legs, but can sometimes walk?
-a) A coin
-b) A snake
-c) A horse
-d) A river
-The more you take, the more you leave behind. What am I?
-a) Footsteps
-b) Breath
-c) Memories
-d) A trail
-What is full of holes but still holds water?
-a) A sponge
-b) A strainer
-c) A bottle
-d) A pipe
-What has a neck but no head?
-a) A bottle
-b) A snake
-c) A pencil
-d) A sweater
-"""
+    def enter(self):
+        print (f"\nThe wall reads the following\n\n")
+        print (f"{self.question}\n")
+        for key, value in self.answers.items():
+            print (f"{key}) {value}\n")
+        print ("\nAnswer with 'answer a' or 'answer b' or 'answer c' or 'answer d'\n")
+
+
+    def process_verb (self, verb, cmd_list, nouns):
+        if (verb == "answer"):
+            if cmd_list[1] == self.correct:
+                announce ("Correct! The door to the next room opens.")
+                config.the_player.go = True
+                config.the_player.next_loc = self.main_location.locations[self.next_loc]
+            else:
+                game = config.the_player
+                randomPirate = random.choice(game.get_pirates())
+                if (randomPirate.isLucky() == True):
+                    announce(f"Incorrect! An arrow shoots from the wall at {randomPirate.get_name()}, but luckely it misses!\n")
+                else:
+                    randomPirate.inflict_damage(10, " arrow shot.")
+                    announce(f"Incorrect! An arrow shoots from the wall and injures {randomPirate.get_name()}! Try again!\n")
+
+class RiddleOne(Riddle):
+    def __init__(self, m):
+        question = "What has keys but can't open locks?"
+        answers = {
+            "a": "A piano",
+            "b": "A computer",
+            "c": "A book",
+            "d": "A map"
+        }
+        correct = "a"
+        next_loc = "riddle_2"
+        super().__init__(m, "riddleOne", question, answers, correct, next_loc)
+
+    def enter(self):
+        print ("The doors all slam around you, there's no turning back now...")
+        super().enter()
+
+class RiddleTwo(Riddle):
+    def __init__(self, m):
+        question = "What has a head, a tail, is brown, and has no legs?"
+        answers = {
+            "a": "A snake",
+            "b": "A horse",
+            "c": "A penny",
+            "d": "A banana"
+        }
+        correct = "c"
+        next_loc = "riddle_3"
+        super().__init__(m, "riddleTwo", question, answers, correct, next_loc)
+
+class RiddleThree(Riddle):
+    def __init__(self, m):
+        question = "The more you take, the more you leave behind. What am I?"
+        answers = {
+            "a": "A secret",
+            "b": "Footprints",
+            "c": "Money",
+            "d": "Time"
+        }
+        correct = "b"
+        next_loc = "treasure"
+        super().__init__(m, "riddleThree", question, answers, correct, next_loc)
+
+# TODO: Add the golden claymore sword to the game
+class Treasure(location.SubLocation):
+    def __init__(self, m):
+        super().__init__(m)
+        self.name = "treasure"
+        self.verbs['leave'] = self
+
+    def enter(self):
+        announce ("You have solved all the riddles and have reached the treasure room! You see a golden claymore sword in the middle of the room and take it.\nYou can now leave.")
+        print("I haven't programmed the sword yet, so just pretend you just got a super cool item and that I'm a complete genius for coming up with it.")
+    
+    def process_verb (self, verb, cmd_list, nouns):
+        if (verb == "leave"):
+            announce ("You return to your ship.")
+            config.the_player.next_loc = config.the_player.ship
+            config.the_player.visiting = False

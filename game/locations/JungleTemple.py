@@ -2,7 +2,16 @@ from game import location
 import game.config as config
 from game.display import announce
 from game.events import *
+from game.items import Item
 import random
+
+class GoldenClaymore(Item):
+    def __init__(self):
+        super().__init__("golden-claymore", 1000) #Note: price is in shillings (a silver coin, 20 per pound)
+        self.damage = (50,80)
+        self.skill = "swords"
+        self.verb = "slash"
+        self.verb2 = "slashes"
 
 class EthanJungleTemple(location.Location):
 
@@ -145,7 +154,6 @@ class RiddleThree(Riddle):
         next_loc = "treasure"
         super().__init__(m, "riddleThree", question, answers, correct, next_loc)
 
-# TODO: Add the golden claymore sword to the game
 class Treasure(location.SubLocation):
     def __init__(self, m):
         super().__init__(m)
@@ -154,7 +162,7 @@ class Treasure(location.SubLocation):
 
     def enter(self):
         announce ("You have solved all the riddles and have reached the treasure room! You see a golden claymore sword in the middle of the room and take it.\nYou can now leave.")
-        print("I haven't programmed the sword yet, so just pretend you just got a super cool item and that I'm a complete genius for coming up with it.")
+        config.the_player.add_to_inventory([GoldenClaymore()])
     
     def process_verb (self, verb, cmd_list, nouns):
         if (verb == "leave"):
